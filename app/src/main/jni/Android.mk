@@ -28,8 +28,7 @@ LOCAL_CFLAGS := -DBOOST_ASIO_HASH_MAP_BUCKETS=1021 \
 				-DTORRENT_USE_ICONV=0 \
 				-DTORRENT_USE_TOMMATH 
 
-LOCAL_C_INCLUDES := /Users/chublix/libtorrent-android/jni/include \
-					$(LOCAL_PATH)
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
 LOCAL_SRC_FILES := 	wrapper.cpp
 
