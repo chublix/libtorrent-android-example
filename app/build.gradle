@@ -20,7 +20,8 @@ android {
         }
     }
 
-    sourceSets.main.jni.srcDirs = [] // disable automatic ndk-build call, which ignore our Android.mk
+    sourceSets.main.jni.srcDirs = []
+    // disable automatic ndk-build call, which ignore our Android.mk
     sourceSets.main.jniLibs.srcDir 'src/main/libs'
 
     // call regular ndk-build(.cmd) script from app directory
@@ -44,6 +45,8 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.1'
+    compile 'com.android.support:support-v4:23.0.1'
+    compile 'com.google.android.gms:play-services:8.1.0'
 }
 
 def getNdkDir() {
@@ -58,6 +61,7 @@ def getNdkDir() {
 
     return ndkdir
 }
+
 
 def getNdkBuildCmd() {
     def ndkbuild = getNdkDir() + "/ndk-build"

@@ -2,5 +2,6 @@
     <string name="app_name">TorrentTest</string>
 
     <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+    <string name="action_add_from_file">Add torrent from file</string>
+    <string name="action_add_from_magnet">Add torrent from magnet URI</string>
 </resources>

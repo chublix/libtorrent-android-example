@@ -57,7 +57,11 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_add_from_file) {
+
+            return true;
+        } else if (id == R.id.action_add_from_magnet) {
+
             return true;
         }
 
@@ -65,7 +69,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onButtonClick(View v) {
-//        Toast.makeText(getApplicationContext(), stringFromJNI(), 1).show();
         List<TorrentItem> list = Arrays.asList(getTorrentsList());
         if (!list.isEmpty()) {
             TorrentItem item = list.get(0);
