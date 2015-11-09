@@ -1,72 +1,59 @@
-import org.apache.tools.ant.taskdefs.condition.Os
+apply plugin: 'com.android.model.application'
 
-apply plugin: 'com.android.application'
+model {
+    android {
+        compileSdkVersion = 23
+        buildToolsVersion = "23.0.1"
 
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
-
-    defaultConfig {
-        applicationId "com.example.chublix.torrenttest"
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        defaultConfig.with {
+            applicationId = "com.example.chublix.torrenttest"
+            minSdkVersion.apiLevel = 15
+            targetSdkVersion.apiLevel = 23
+            versionCode = 1
+            versionName = "1.0"
         }
     }
 
-    sourceSets.main.jni.srcDirs = []
-    // disable automatic ndk-build call, which ignore our Android.mk
-    sourceSets.main.jniLibs.srcDir 'src/main/libs'
+    android.ndk {
+        moduleName = "wrapper"
+        toolchain = "clang"
+        toolchainVersion = "3.5"
 
-    // call regular ndk-build(.cmd) script from app directory
-    task ndkBuild(type: Exec) {
-        workingDir file('src/main')
-        commandLine getNdkBuildCmd()
+        cppFlags += "-I${file("src/main/jni/include")}".toString()
+        cppFlags += ["-frtti", "-fexceptions", "-DANDROID"]
+        cppFlags += ["-DBOOST_ASIO_HASH_MAP_BUCKETS=1021", "-DBOOST_FILESYSTEM_VERSION=3", "-DUNICODE"]
+        cppFlags += ["-DWITH_SHIPPED_GEOIP_H", "-DTORRENT_BUILDING_STATIC", "-DBOOST_ASIO_SEPARATE_COMPILATION"]
+        cppFlags += ["-DBOOST_ASIO_ENABLE_CANCELIO", "-DTORRENT_USE_ICONV=0", "-DTORRENT_USE_TOMMATH"]
+        ldFlags += "-Lsrc/main/jni/lib"
+        ldLibs += ["boost_system-gcc-mt-1_53", "boost_filesystem-gcc-mt-1_53", "torrent-rasterbar"]
+        ldLibs += "log"
+        stl = "gnustl_static"
     }
 
-    tasks.withType(JavaCompile) {
-        compileTask -> compileTask.dependsOn ndkBuild
+    android.buildTypes {
+        release {
+            minifyEnabled = false
+            proguardFiles += file('proguard-android.txt')
+            //proguardFiles += file("proguard-rules.pro")
+        }
     }
 
-    task cleanNative(type: Exec) {
-        workingDir file('src/main')
-        commandLine getNdkBuildCmd(), 'clean'
+    android.productFlavors {
+        create("flavor1") {
+            applicationId = "com.app"
+        }
+        create("arm") {
+            ndk.with {
+                abiFilters += "armeabi-v7a"
+            }
+        }
+        create("fat")
     }
 
-    clean.dependsOn cleanNative
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:23.0.1'
-    compile 'com.android.support:support-v4:23.0.1'
-    compile 'com.google.android.gms:play-services:8.1.0'
-}
-
-def getNdkDir() {
-    if (System.env.ANDROID_NDK_ROOT != null)
-        return System.env.ANDROID_NDK_ROOT
-
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    def ndkdir = properties.getProperty('ndk.dir', null)
-    if (ndkdir == null)
-        throw new GradleException("NDK location not found. Define location with ndk.dir in the local.properties file or with an ANDROID_NDK_ROOT environment variable.")
-
-    return ndkdir
-}
-
-
-def getNdkBuildCmd() {
-    def ndkbuild = getNdkDir() + "/ndk-build"
-    if (Os.isFamily(Os.FAMILY_WINDOWS))
-        ndkbuild += ".cmd"
-
-    return ndkbuild
+    //compile 'com.android.support:support-v4:23.0.1'
 }
